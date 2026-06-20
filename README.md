@@ -38,7 +38,7 @@ cp /path/to/this/repo/manifest.json .
 ### 开发构建
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Qi-hub-dot/obsidian-deepseek-organizer.git
 cd obsidian-deepseek
 npm install
 npm run dev          # 监听模式

@@ -5,7 +5,7 @@
 ## 环境准备
 
 ```bash
-git clone https://github.com/Qi/obsidian-deepseek-organizer.git
+git clone https://github.com/Qi-hub-dot/obsidian-deepseek-organizer.git
 cd obsidian-deepseek-organizer
 npm install
 ```
