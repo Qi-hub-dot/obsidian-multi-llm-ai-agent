@@ -252,7 +252,8 @@ export class ChatView {
 
     // 仍在特殊块内部 → 暂不渲染
     if (inMath || inCode || inTable) return 0;
-    if (last === 0 && text.length >= 40) {
+    // 兜底：只在内容积累到 800+ 字符且仍无段落边界时才在空格处断开
+    if (last === 0 && text.length >= 800) {
       for (let i = text.length - 1; i >= 0; i--) {
         if (text[i] === " " || text[i] === "\n") { last = i + 1; break; }
       }

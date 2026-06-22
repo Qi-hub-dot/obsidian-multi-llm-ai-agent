@@ -1,6 +1,6 @@
 {
   "name": "obsidian-deepseek-organizer",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Obsidian plugin integrating DeepSeek V4 Pro for intelligent note organization",
   "main": "main.js",
   "author": "Qi",
