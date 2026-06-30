@@ -104,3 +104,11 @@ npm run build  # 生产构建 → main.js
 ## 📄 许可证
 
 MIT
+
+---
+
+## 🙏 致谢
+
+本项目在架构设计、UI 交互模式上参考了 [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot)（[@logancyang](https://github.com/logancyang)，AGPL-3.0），感谢其开源贡献。
+
+本插件为独立实现，所有代码均为原创编写，不包含 Copilot 的源码。
