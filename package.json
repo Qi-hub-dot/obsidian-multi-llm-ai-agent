@@ -4,7 +4,7 @@
   "description": "国产大模型 AI 助手 — DeepSeek / 通义千问 / 智谱 GLM / Ollama，工具调用、多模态识别、Vault 语义检索",
   "main": "main.js",
   "author": "Qi",
-  "repository": "https://github.com/Qi-hub-dot/obsidian-ai-assistant",
+  "repository": "https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
