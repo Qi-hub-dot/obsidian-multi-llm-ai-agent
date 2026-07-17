@@ -1,0 +1,41 @@
+{
+  "name": "obsidian-ai-assistant",
+  "version": "2.0.0",
+  "description": "国产大模型 AI 助手 — DeepSeek / 通义千问 / 智谱 GLM / Ollama，工具调用、多模态识别、Vault 语义检索",
+  "main": "main.js",
+  "author": "Qi",
+  "repository": "https://github.com/Qi-hub-dot/obsidian-ai-assistant",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "deepseek",
+    "qwen",
+    "glm",
+    "ai",
+    "knowledge-management",
+    "rag"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "esbuild": "^0.24.0",
+    "jest": "^30.4.2",
+    "obsidian": "^1.5.0",
+    "ts-jest": "^29.4.11",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "mammoth": "^1.6.0",
+    "onnxruntime-web": "^1.27.0",
+    "pdfjs-dist": "^4.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

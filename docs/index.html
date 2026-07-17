@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obsidian AI 助手 — 国产大模型知识管理插件</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --orange: #d2991d;
+      --purple: #a371f7;
+      --red: #f85149;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+      background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #58a6ff, #a371f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .badges {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .badge.ds { border-color: #f85149; color: #f85149; }
+    .badge.qw { border-color: #d2991d; color: #d2991d; }
+    .badge.glm { border-color: #58a6ff; color: #58a6ff; }
+    .badge.ollama { border-color: #3fb950; color: #3fb950; }
+
+    /* Sections */
+    section { padding: 64px 0; }
+    section:nth-child(even) { background: #0d1117; }
+    section:nth-child(odd) { background: #161b22; }
+    section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    /* Features Grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-card .icon { font-size: 2rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; }
+
+    /* Tool Table */
+    .tool-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .tool-table th, .tool-table td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .tool-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+    .tool-table code {
+      background: #21262d;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    /* Architecture */
+    .arch-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .arch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .arch-node {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      background: #21262d;
+    }
+    .arch-arrow { color: var(--muted); font-size: 1.2rem; }
+
+    /* Install */
+    .install-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .install-block .c { color: var(--muted); }
+    .install-block .k { color: var(--accent); }
+    .install-block .v { color: var(--green); }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { color: var(--muted); font-size: 0.85rem; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .features { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <h1>Obsidian AI 助手</h1>
+    <p>国产大模型驱动的知识管理插件 — 工具调用 · 多模态识别 · Vault 语义检索 · 知识图谱 · 一键笔记</p>
+    <div class="badges">
+      <span class="badge ds">🔴 DeepSeek V4</span>
+      <span class="badge qw">🟠 通义千问</span>
+      <span class="badge glm">🔵 智谱 GLM-4</span>
+      <span class="badge ollama">🦙 Ollama 本地</span>
+    </div>
+  </div>
+</header>
+
+<!-- Stats -->
+<section>
+  <div class="container">
+    <div class="stats">
+      <div class="stat"><div class="stat-num">119</div><div class="stat-label">单元测试通过</div></div>
+      <div class="stat"><div class="stat-num">9</div><div class="stat-label">内置 AI 工具</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">模型提供商</div></div>
+      <div class="stat"><div class="stat-num">20</div><div class="stat-label">最大推理轮次</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section>
+  <div class="container">
+    <h2>✨ 核心功能</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="icon">🧠</div>
+        <h3>Agentic 工具调用</h3>
+        <p>AI 自主调用 9 个内置工具完成知识管理操作：搜索笔记、创建笔记、追加内容、浏览目录、管理标签、生成知识图谱。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📷</div>
+        <h3>多模态文件识别</h3>
+        <p>统一附件入口，自动路由：图片 → 视觉模型 OCR、PDF → 渲染提取、Word → mammoth 解析、Markdown → 直接注入。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔍</div>
+        <h3>Vault 语义检索 (RAG)</h3>
+        <p>本地 TF-IDF 全文索引 + CJK n-gram 分词，零外部依赖。每次对话自动注入 Top-5 相关笔记上下文。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔄</div>
+        <h3>流式推理 + 思考面板</h3>
+        <p>逐 token 实时输出，DeepSeek V4 Pro 推理链可折叠展示，支持中途停止生成。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🗺️</div>
+        <h3>知识图谱生成</h3>
+        <p>一键生成 Obsidian Canvas 格式脑图，自动布局节点和连线，支持多候选提取 + 格式规范化。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📝</div>
+        <h3>智能笔记创建</h3>
+        <p>融合 Zettelkasten 原子化 + PARA 分类 + MOC 索引方法论，自动归类目录、生成 frontmatter 和标签。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tools -->
+<section>
+  <div class="container">
+    <h2>🛠️ 内置工具</h2>
+    <table class="tool-table">
+      <thead>
+        <tr><th>工具</th><th>功能</th><th>触发场景</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>searchVault</code></td><td>全文搜索笔记</td><td>「有没有关于X的笔记」</td></tr>
+        <tr><td><code>readNote</code></td><td>读取笔记全文</td><td>「打开X笔记看看」</td></tr>
+        <tr><td><code>createNote</code></td><td>创建新笔记</td><td>「做笔记 / 创建一篇关于X的笔记」</td></tr>
+        <tr><td><code>modifyNote</code></td><td>覆盖笔记内容</td><td>「修改 / 重写 X 笔记」</td></tr>
+        <tr><td><code>appendNote</code></td><td>追加到笔记末尾</td><td>「补充 / 追加到 X 笔记」</td></tr>
+        <tr><td><code>listNotes</code></td><td>列出所有笔记</td><td>「有哪些笔记 / 看看我的笔记」</td></tr>
+        <tr><td><code>getFileTree</code></td><td>浏览目录结构</td><td>「看看我的文件夹结构」</td></tr>
+        <tr><td><code>getTags</code></td><td>查看标签体系</td><td>「有哪些标签」</td></tr>
+        <tr><td><code>saveCanvas</code></td><td>生成知识图谱</td><td>「画脑图 / 知识图谱 / 思维导图」</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section>
+  <div class="container">
+    <h2>🏗️ 技术架构</h2>
+    <div class="arch-block">
+      <div class="arch-row">
+        <span class="arch-node">Obsidian Plugin API</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-node">React 18 UI</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-node">ChatModelManager</span>
+      </div>
+      <div class="arch-row">
+        <span class="arch-node" style="border-color:#f85149">DeepSeek</span>
+        <span class="arch-node" style="border-color:#d2991d">Qwen</span>
+        <span class="arch-node" style="border-color:#58a6ff">GLM-4</span>
+        <span class="arch-node" style="border-color:#3fb950">Ollama</span>
+      </div>
+      <div class="arch-row">
+        <span class="arch-arrow">↓</span>
+      </div>
+      <div class="arch-row">
+        <span class="arch-node">Tool Call Parser</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-node">Tool Registry</span>
+        <span class="arch-arrow">→</span>
+        <span class="arch-node">9 Built-in Tools</span>
+      </div>
+      <div class="arch-row">
+        <span class="arch-node">Vault Search (TF-IDF)</span>
+        <span class="arch-node">File Parsers</span>
+        <span class="arch-node">Canvas JSON</span>
+      </div>
+      <p style="text-align:center;color:var(--muted);margin-top:20px;font-size:0.85rem">
+        TypeScript 5.3+ · esbuild · Jest 30 · React 18 · Obsidian API 1.5+
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Install -->
+<section>
+  <div class="container">
+    <h2>📦 安装</h2>
+    <h3 style="margin-top:24px">方式一：社区插件市场</h3>
+    <div class="install-block">
+      <span class="c"># Obsidian → 设置 → 第三方插件 → 浏览</span><br>
+      <span class="c"># 搜索 </span><span class="v">"obsidian-deepseek-organizer"</span><br>
+      <span class="c"># 点击安装并启用</span>
+    </div>
+    <h3 style="margin-top:24px">方式二：手动安装</h3>
+    <div class="install-block">
+      <span class="c"># 克隆仓库到插件目录</span><br>
+      <span class="k">cd</span> .obsidian/plugins<br>
+      <span class="k">git clone</span> <span class="v">https://github.com/Qi-hub-dot/obsidian-ai-assistant.git</span><br><br>
+      <span class="c"># 安装依赖并构建</span><br>
+      <span class="k">cd</span> obsidian-ai-assistant<br>
+      <span class="k">npm install && npm run build</span><br><br>
+      <span class="c"># 在 Obsidian 中启用插件</span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>
+      <a href="https://github.com/Qi-hub-dot/obsidian-ai-assistant">GitHub</a> ·
+      MIT License ·
+      Made with ❤️ for Obsidian
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
