@@ -20,7 +20,7 @@ npm run build   # 生产构建（含类型检查）
 npm test        # 运行测试
 ```
 
-构建产物 `main.js` 会自动生成在项目根目录。将此文件连同 `styles.css` 和 `manifest.json` 复制到测试 vault 的 `.obsidian/plugins/obsidian-deepseek-organizer/` 即可在 Obsidian 中调试。
+构建产物 `main.js` 会自动生成在项目根目录。将此文件连同 `styles.css` 和 `manifest.json` 复制到测试 vault 的 `.obsidian/plugins/ai-assistant-cn/` 即可在 Obsidian 中调试。
 
 ## 项目结构
 

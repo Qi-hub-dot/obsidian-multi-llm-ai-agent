@@ -25,9 +25,9 @@ jobs:
 
       - name: Package plugin
         run: |
-          mkdir obsidian-deepseek-organizer
-          cp main.js manifest.json styles.css obsidian-deepseek-organizer/
-          zip -r obsidian-deepseek-organizer.zip obsidian-deepseek-organizer
+          mkdir ai-assistant-cn
+          cp main.js manifest.json styles.css ai-assistant-cn/
+          zip -r ai-assistant-cn.zip ai-assistant-cn
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -36,5 +36,5 @@ jobs:
             main.js
             manifest.json
             styles.css
-            obsidian-deepseek-organizer.zip
+            ai-assistant-cn.zip
           generate_release_notes: true

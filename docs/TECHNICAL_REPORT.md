@@ -2,7 +2,7 @@
 
 > **项目定位**：面向香港高校 AI/CS 硕士申请的展示项目  
 > **GitHub**：[Qi-hub-dot/obsidian-ai-assistant](https://github.com/Qi-hub-dot/obsidian-ai-assistant)  
-> **插件 ID**：`obsidian-deepseek-organizer`（已上架 Obsidian 社区插件市场）
+> **插件 ID**：`ai-assistant-cn`（已上架 Obsidian 社区插件市场）
 
 ---
 

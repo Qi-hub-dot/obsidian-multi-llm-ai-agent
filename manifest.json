@@ -1,9 +1,9 @@
 {
-  "id": "obsidian-deepseek-organizer",
+  "id": "ai-assistant-cn",
   "name": "AI 助手",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "minAppVersion": "1.5.0",
-  "description": "国产大模型 AI 助手：DeepSeek / 通义千问 / 智谱 GLM / Ollama | 工具调用 · 多模态识别 · Vault 语义检索 · 知识图谱 · 一键笔记",
+  "description": "AI assistant supporting DeepSeek, Qwen, GLM, and Ollama with tool calling, multimodal recognition, vault semantic search, and knowledge graphs.",
   "author": "Qi",
   "authorUrl": "https://github.com/Qi-hub-dot",
   "isDesktopOnly": false
