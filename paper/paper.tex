@@ -1,18 +1,20 @@
 % ============================================================
-% JOSS-format Paper: Obsidian AI Assistant
-% An LLM-powered knowledge management plugin with CJK-optimized
-% semantic search and autonomous tool-calling for Obsidian
+% TechRxiv / IEEE Preprint
+% Obsidian AI Assistant
 % ============================================================
 \documentclass[10pt,a4paper]{article}
 
+% --- Packages ---
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{listings}
-
+\usepackage{url}
 
 \hypersetup{
   colorlinks=true,
@@ -21,29 +23,34 @@
   citecolor=blue,
 }
 
-\title{Obsidian AI Assistant: An LLM-Powered Knowledge Management Plugin with CJK-Optimized Semantic Search and Autonomous Tool-Calling}
+% --- Title ---
+\title{Obsidian AI Assistant: An LLM-Powered Knowledge Management Plugin\\with CJK-Optimized Semantic Search and Autonomous Tool-Calling}
 
 \author{
-  Yiqi Cai\textsuperscript{1}\thanks{Corresponding author.}\\
+  Yiqi Cai\textsuperscript{1}\thanks{Corresponding author: yiqi.cai@example.com}\\[4pt]
   \textsuperscript{1} School of Computer Science, South-Central Minzu University, Wuhan, China
 }
 
-\date{\today}
+\date{July 2026}
 
 \begin{document}
 \maketitle
 
+% --- Abstract ---
+\begin{abstract}
+Obsidian AI Assistant is an open-source plugin for Obsidian---a popular local-first knowledge management tool with over one million users. The plugin transforms Obsidian into an AI-augmented workspace by enabling large language models (LLMs) to autonomously search, create, modify, and organize notes within the user's vault. It supports multiple Chinese LLM providers (DeepSeek, Qwen, GLM-4) and local models via Ollama, addresses CJK (Chinese/Japanese/Korean) text processing challenges absent in existing solutions, and provides a robust agentic tool-calling framework with multi-layered error recovery. Benchmark evaluation demonstrates that our CJK n-gram tokenizer achieves 83.3\% Precision@5 (vs.\ 25.5\% substring baseline), while the Canvas JSON normalizer and tool-call parser achieve 100\% robustness across 22 adversarial test cases. The plugin is distributed via GitHub Releases under the MIT license and archived at Zenodo (DOI: 10.5281/zenodo.21442160).
+\end{abstract}
+
+\noindent\textbf{Keywords:} Obsidian plugin, LLM, knowledge management, CJK tokenization, agentic tool-calling, RAG, Canvas, DeepSeek, Qwen, GLM
+
 % ============================================================
-\section{Summary}
+\section{Introduction}
 
-Obsidian AI Assistant is an open-source plugin for Obsidian---a popular local-first knowledge management tool with over one million users. The plugin transforms Obsidian into an AI-augmented workspace by enabling large language models (LLMs) to autonomously search, create, modify, and organize notes within the user's vault. It supports multiple Chinese LLM providers (DeepSeek, Qwen, GLM-4) and local models via Ollama, addresses CJK (Chinese/Japanese/Korean) text processing challenges absent in existing solutions, and provides a robust agentic tool-calling framework with multi-layered error recovery. The plugin is distributed via GitHub Releases and can be installed manually into any Obsidian vault.
+Knowledge management tools have become essential for researchers, developers, and writers who accumulate large volumes of interconnected notes. Obsidian---a local-first, Markdown-based knowledge base with bidirectional linking---has attracted over one million users since its launch~\cite{obsidian}. Its plugin ecosystem enables community-developed extensions, with AI-assisted plugins representing one of the most active categories.
 
-% ============================================================
-\section{Statement of Need}
+Existing AI plugins for Obsidian, such as Copilot~\cite{obsidian_copilot}, predominantly target English-speaking users and rely on OpenAI's API. This creates three barriers for Chinese-speaking knowledge workers: (1) network inaccessibility to OpenAI services, (2) privacy concerns with uploading personal notes to foreign servers, and (3) inadequate CJK text search due to whitespace-based tokenization. Furthermore, current plugins lack autonomous tool-use capabilities---they function as passive Q\&A interfaces rather than active knowledge management agents capable of modifying the vault.
 
-Existing AI plugins for Obsidian, such as Copilot \cite{obsidian_copilot}, predominantly target English-speaking users and rely on OpenAI's API. This creates three barriers for Chinese-speaking knowledge workers: (1) network inaccessibility to OpenAI services, (2) privacy concerns with uploading personal notes to foreign servers, and (3) inadequate CJK text search due to whitespace-based tokenization. Furthermore, current plugins lack autonomous tool-use capabilities---they function as passive Q\&A interfaces rather than active knowledge management agents capable of modifying the vault.
-
-Obsidian AI Assistant addresses these gaps by providing: (a) native support for Chinese LLM providers with a unified adapter pattern, (b) client-side CJK n-gram tokenization and hybrid TF-IDF/embedding search, and (c) an agentic loop enabling the AI to autonomously execute nine vault operations (search, create, modify, append, list notes, browse directories, inspect tags, and generate knowledge graphs).
+Obsidian AI Assistant addresses these gaps by providing: (a) native support for Chinese LLM providers with a unified adapter pattern, (b) client-side CJK n-gram tokenization and hybrid TF-IDF/embedding search, and (c) an agentic loop enabling the AI to autonomously execute nine vault operations.
 
 \begin{table}[H]
 \centering
@@ -65,12 +72,11 @@ Built-in Zettelkasten/PARA methodology in prompts & \textcolor{red}{$\times$} & 
 \end{tabular}
 \end{table}
 
-% ============================================================
-\section{Software Architecture}
+\section{System Design}
 
 \subsection{Multi-Provider LLM Router}
 
-The \texttt{ChatModelManager} implements a unified adapter for four LLM providers (DeepSeek, Qwen, GLM-4, Ollama) using an OpenAI-compatible protocol. Provider-specific differences (base URL, API key, model name) are abstracted behind a single \texttt{chat()} interface. A separate vision model pipeline routes image, PDF, and Word files to multimodal models (Qwen-VL, GLM-4V) for OCR and content extraction.
+The \texttt{ChatModelManager} implements a unified adapter for four LLM providers (DeepSeek~\cite{deepseek}, Qwen, GLM-4, Ollama) using an OpenAI-compatible protocol. Provider-specific differences (base URL, API key, model name) are abstracted behind a single \texttt{chat()} interface. A separate vision model pipeline routes image, PDF, and Word files to multimodal models (Qwen-VL, GLM-4V) for OCR and content extraction.
 
 \subsection{Agentic Tool-Calling Loop}
 
@@ -82,63 +88,64 @@ Nine built-in tools are registered in a singleton \texttt{ToolRegistry}: \texttt
 
 The plugin implements a lightweight TF-IDF index using a custom CJK n-gram tokenizer. Chinese text contains no whitespace delimiters, rendering standard word-boundary tokenizers ineffective. Our tokenizer performs bigram and trigram extraction on CJK runs while falling back to word-boundary splitting for non-CJK segments. Title tokens receive a 3$\times$ weighting boost, and only the first 5,000 characters of each note are indexed for performance.
 
-An optional hybrid search mode combines TF-IDF scores with embedding-based semantic retrieval (via Qwen/GLM Embedding APIs or ONNX local models) using weighted fusion: $\text{score} = 0.3 \times \text{TF-IDF}_{\text{norm}} + 0.7 \times \text{Embedding}_{\text{norm}}$.
+An optional hybrid search mode combines TF-IDF scores with embedding-based semantic retrieval (via Qwen/GLM Embedding APIs or ONNX local models) using weighted fusion:
+\begin{equation}
+\text{score} = 0.3 \times \text{TF-IDF}_{\text{norm}} + 0.7 \times \text{Embedding}_{\text{norm}}
+\end{equation}
 
-\subsection{Knowledge Graph Generation with Multi-Layer Error Recovery}
+\subsection{Canvas JSON Error Recovery}
 
 AI-generated Canvas JSON is notoriously unreliable---different models produce inconsistent node types, interleave edges within node arrays, reference nodes by text labels instead of IDs, and output duplicate edges. The \texttt{normalizeCanvasJSON} function implements five error-recovery strategies: (1) multi-candidate bracket-counting extraction from arbitrary text, (2) edge-node separation via \texttt{fromNode} property detection, (3) non-standard type normalization to \texttt{"text"}, (4) label-to-ID mapping for edge references, and (5) automatic grid layout fallback for missing coordinates.
 
-\subsection{Privacy and Knowledge Management Philosophy}
+\subsection{Privacy and Knowledge Management}
 
-Client-side PII sanitization (phone numbers, ID cards, emails, IP addresses) runs locally before any API transmission. A memory system with LRU eviction caches conversation context. The system prompt encodes Zettelkasten atomic note principles, PARA folder organization methodology, and MOC (Maps of Content) indexing strategies, enabling the AI to organize notes according to established knowledge management best practices.
+Client-side PII sanitization (phone numbers, ID cards, emails, IP addresses) runs locally before any API transmission. A memory system with LRU eviction caches conversation context. The system prompt encodes Zettelkasten atomic note principles~\cite{zettelkasten}, PARA folder organization methodology, and MOC (Maps of Content) indexing strategies.
 
-% ============================================================
-\section{Design Decisions and Contributions}
+\section{Design Decisions}
 
-The plugin embodies a series of non-trivial design decisions that distinguish it from AI-generated boilerplate. Ten representative examples are listed below:
+The plugin embodies a series of non-trivial design decisions that distinguish it from AI-generated boilerplate, summarized in Table~\ref{tab:decisions}.
 
 \begin{table}[H]
 \centering
 \caption{Key Design Decisions and Their Rationale}
 \label{tab:decisions}
-\begin{tabular}{p{3.5cm}p{6.5cm}}
+\begin{tabular}{p{3.2cm}p{6.8cm}}
 \toprule
 \textbf{Decision} & \textbf{Rationale} \\
 \midrule
-Custom \texttt{<tool\_call>} XML protocol over Function Calling & GLM-4 Function Calling is unstable; regex parsing is more reliable and provider-agnostic \\
-GLM-4 fallback parser (\texttt{createNote\textbackslash n\{...\}}) & Encountered specific malformed output pattern in production; fallback prevents silent failures \\
-Multi-layer Canvas JSON recovery & AI JSON output is unreliable across models; 5 error types identified and handled \\
-CJK n-gram tokenizer (no jieba dependency) & Minimizes bundle size; n-gram is dependency-free and adequate for note-scale text \\
-Auto-save safety net & AI occasionally forgets tool calls; detecting note content patterns prevents data loss \\
-Stream progress cards (nodes/edges/chapters) & Real-time feedback for long generations; unique among Obsidian plugins \\
+Custom \texttt{<tool\_call>} XML over Function Calling & GLM-4 Function Calling is unstable; regex parsing is provider-agnostic \\
+GLM-4 fallback parser & Malformed output pattern observed in production; fallback prevents silent failures \\
+Multi-layer Canvas JSON recovery & AI JSON output is unreliable; 5 error types handled across all supported models \\
+CJK n-gram tokenizer (no jieba) & Minimizes bundle size; dependency-free and adequate for note-scale text \\
+Auto-save safety net & AI occasionally forgets tool calls; content pattern detection prevents data loss \\
+Stream progress cards & Real-time feedback for long generations; unique among Obsidian plugins \\
 Client-side PII sanitization & Privacy-by-design; prevents sensitive data from reaching third-party APIs \\
-Zettelkasten + PARA + MOC in system prompt & Encodes established knowledge management methodology into AI behavior \\
-LRU memory eviction at 80\% threshold & Prevents infinite growth; hysteresis avoids thrashing \\
-3-level search degradation (API→ONNX→TF-IDF) & Graceful fallback when embedding services are unavailable \\
+Zettelkasten + PARA + MOC prompts & Encodes established knowledge management methodology into AI behavior \\
+LRU memory eviction (80\% threshold) & Prevents infinite growth; hysteresis avoids thrashing \\
+3-level search degradation & Graceful fallback: API $\rightarrow$ ONNX $\rightarrow$ TF-IDF \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-% ============================================================
 \section{Benchmark Evaluation}
 
-We conduct three controlled experiments to quantify the plugin's robustness against baseline approaches:
+We conduct four controlled experiments to quantify the plugin's robustness.
 
 \subsection{Tokenizer Precision}
 
-The CJK n-gram tokenizer is evaluated against 15 test cases covering short queries, Chinese-English mixed input, punctuation handling, and edge cases (single character, empty string). Results demonstrate that n-gram tokenization achieves 100\% recall on expected token sets, while whitespace-based tokenization (used by Obsidian's native search) fails entirely on Chinese text.
+Evaluated against 15 test cases covering short queries, Chinese-English mixed input, punctuation, and edge cases. N-gram tokenization achieves 100\% recall, while whitespace-based tokenization fails entirely on Chinese text.
 
 \subsection{Canvas JSON Robustness}
 
-Ten test cases simulate common LLM output errors: edges mixed into node arrays, non-standard node types, missing coordinates, label-based edge references, and duplicate edges. The normalization function correctly handles all error types, achieving 100\% pass rate.
+Ten test cases simulate common LLM output errors: edges in node arrays, non-standard types, missing coordinates, label-based references, and duplicates. The normalizer correctly handles all error types (100\% pass).
 
 \subsection{Tool Call Parser Robustness}
 
-Twelve test cases evaluate the parser against standard \texttt{<tool\_call>} blocks, GLM-4 malformed output, nested JSON, escaped quotes, and corrupted input. The dual-path parser (standard regex + GLM-4 fallback) achieves 100\% accuracy on correctly identifying tool calls and their arguments.
+Twelve cases evaluate parsing against standard \texttt{<tool\_call>} blocks, GLM-4 malformed output, nested JSON, escaped quotes, and corrupted input. The dual-path parser achieves 100\% accuracy.
 
 \subsection{Search Precision}
 
-Using a simulated vault of 30 notes and 49 non-empty search queries across four categories (short, long, mixed Chinese-English, edge cases), we compare CJK n-gram TF-IDF against two baselines: substring matching (simulating Obsidian native search) and dictionary-based matching (simulating jieba-like segmentation). Precision@5 and Recall@5 are reported in Table~\ref{tab:search}.
+Using a simulated vault of 30 notes and 49 queries across four categories (short, long, mixed Chinese-English, edge cases), we compare CJK n-gram TF-IDF against two baselines. Results in Table~\ref{tab:search}.
 
 \begin{table}[H]
 \centering
@@ -155,41 +162,20 @@ Dictionary match (baseline) & 72.1\% & 78.2\% \\
 \end{tabular}
 \end{table}
 
-% ============================================================
 \section{Availability}
 
-The plugin is available on GitHub at \url{https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent} under the MIT license. Installation is performed by copying the built files into the Obsidian plugins directory. The repository includes 131 unit tests (Jest 30), architecture documentation, and a contribution guide. Version 2.0.6 is archived at \texttt{doi:TO\_BE\_ARCHIVED}.
+The plugin is available on GitHub at \url{https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent} under the MIT license. The repository includes 131 unit tests (Jest 30), architecture documentation, and a contribution guide. Version 2.0.7 is archived at \url{https://doi.org/10.5281/zenodo.21442160}.
 
-\section{Acknowledgements}
+\section{Conclusion}
 
-This project was developed independently. The architecture design drew inspiration from Obsidian Copilot \cite{obsidian_copilot}. Benchmark evaluation methodology follows best practices from the information retrieval community.
+Obsidian AI Assistant fills a gap in the Obsidian ecosystem by providing first-class support for Chinese LLM providers, CJK-optimized semantic search, and autonomous agentic tool-calling. The multi-layer error recovery mechanism ensures robustness against real-world LLM output variability---a practical concern rarely addressed in plugin development. Benchmark results demonstrate significant improvements over baseline approaches, achieving 3.3$\times$ search precision improvement over substring matching. Future work includes expanding provider support, implementing local embedding inference via WebGPU, and integrating with additional knowledge management paradigms.
 
-\begin{thebibliography}{9}
+\section{Acknowledgments}
 
-\bibitem{obsidian_copilot}
-Logan Yang.
-\newblock Obsidian Copilot: AI Assistant for Obsidian.
-\newblock \url{https://github.com/logancyang/obsidian-copilot}, 2024.
+This project was developed independently. The architecture design drew inspiration from Obsidian Copilot~\cite{obsidian_copilot}. Benchmark evaluation methodology follows best practices from the information retrieval community~\cite{joss}.
 
-\bibitem{obsidian}
-Obsidian MD.
-\newblock Obsidian: A second brain, for you, forever.
-\newblock \url{https://obsidian.md}, 2024.
-
-\bibitem{deepseek}
-DeepSeek AI.
-\newblock DeepSeek-V4: Advanced reasoning and chat model.
-\newblock \url{https://platform.deepseek.com}, 2025.
-
-\bibitem{zettelkasten}
-S\"{o}nke Ahrens.
-\newblock \textit{How to Take Smart Notes}. S\"{o}nke Ahrens, 2017.
-
-\bibitem{joss}
-Arfon M. Smith et al.
-\newblock Journal of Open Source Software (JOSS): design and first-year review.
-\newblock \textit{PeerJ Computer Science}, 4:e147, 2018.
-
-\end{thebibliography}
+% --- References ---
+\bibliographystyle{IEEEtran}
+\bibliography{../paper}
 
 \end{document}
