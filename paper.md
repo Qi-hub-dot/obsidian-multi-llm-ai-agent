@@ -10,7 +10,7 @@ tags:
   - typescript
 authors:
   - name: Yiqi Cai
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0002-3375-5517
     affiliation: 1
 affiliations:
   - name: School of Computer Science, South-Central Minzu University, Wuhan, China
