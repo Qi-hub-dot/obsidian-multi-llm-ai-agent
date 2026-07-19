@@ -1,7 +1,7 @@
 {
-  "id": "multi-llm-ai-agent",
-  "name": "AI 助手",
-  "version": "2.0.3",
+  "id": "chat-ai-assistant",
+  "name": "AI Assistant",
+  "version": "2.0.4",
   "minAppVersion": "1.5.0",
   "description": "AI assistant supporting DeepSeek, Qwen, GLM, and Ollama with tool calling, multimodal recognition, vault semantic search, and knowledge graphs.",
   "author": "Qi",
