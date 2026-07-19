@@ -25,9 +25,9 @@ jobs:
 
       - name: Package plugin
         run: |
-          mkdir ai-assistant-cn
-          cp main.js manifest.json styles.css ai-assistant-cn/
-          zip -r ai-assistant-cn.zip ai-assistant-cn
+          mkdir multi-llm-ai-agent
+          cp main.js manifest.json styles.css multi-llm-ai-agent/
+          zip -r multi-llm-ai-agent.zip multi-llm-ai-agent
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -36,5 +36,5 @@ jobs:
             main.js
             manifest.json
             styles.css
-            ai-assistant-cn.zip
+            multi-llm-ai-agent.zip
           generate_release_notes: true

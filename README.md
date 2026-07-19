@@ -95,7 +95,7 @@ AI �?*自主调用工具**完成知识管理操作�?
 ```bash
 # 方式一：下�?Release
 # 1. 下载 main.js / styles.css / manifest.json
-# 2. 放入 .obsidian/plugins/ai-assistant-cn/
+# 2. 放入 .obsidian/plugins/multi-llm-ai-agent/
 # 3. 重启 Obsidian �?设置 �?启用「AI 助手�?
 # 方式二：从源码构�?git clone https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent.git
 cd obsidian-ai-assistant
