@@ -1,9 +1,9 @@
 {
   "id": "multi-llm-assistant",
   "name": "Multi-LLM Assistant",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "minAppVersion": "1.5.0",
-  "description": "AI assistant supporting DeepSeek, Qwen, GLM, and Ollama with tool calling, multimodal recognition, vault semantic search, and knowledge graphs.",
+  "description": "Chat with DeepSeek, Qwen, GLM, or Ollama from your sidebar. Agentic tool calling to search and create notes, multimodal file OCR, vault RAG retrieval, and auto-generated Canvas mind maps.",
   "author": "Qi",
   "authorUrl": "https://github.com/Qi-hub-dot",
   "isDesktopOnly": true
