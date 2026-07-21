@@ -177,3 +177,9 @@ MIT © Yiqi Cai
 ## 🙏 Acknowledgements
 
 The architecture design drew inspiration from [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot) (Logan Yang, AGPL-3.0). All code is independently written; this project is not a fork.
+
+---
+
+## 👤 About the Author
+
+I'm Yiqi Cai, a computer science student at South-Central Minzu University. I designed and built this project on my own to explore how AI can work with knowledge management tools in practice — specifically for Chinese-language workflows that existing plugins overlooked. If you're curious about the design choices or want to chat about the project, feel free to reach out.
