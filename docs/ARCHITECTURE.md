@@ -1,6 +1,6 @@
-# 架构文档 — AI 助手 (Obsidian Plugin v2.0)
+# Architecture Document — Multi-LLM AI Assistant (Obsidian Plugin v2.0)
 
-> 面向硕士申请的技术展示项目，国产大模型驱动的 Obsidian 知识管理插件。
+> **Designed & Architected by Yiqi Cai** — A graduate portfolio project demonstrating system design, independent problem-solving, and research methodology in AI-augmented knowledge management.
 
 ---
 

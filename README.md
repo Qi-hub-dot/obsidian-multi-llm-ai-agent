@@ -1,103 +1,182 @@
-# AI 助手 �?Obsidian 插件
-
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.1-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-2.0.7-blue" alt="version">
   <img src="https://img.shields.io/badge/tests-131%20passed-green" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="license">
   <img src="https://img.shields.io/badge/platform-Obsidian%201.5%2B-purple" alt="platform">
+  <img src="https://img.shields.io/badge/benchmark-85%2F86%20passed-orange" alt="benchmark">
+  <img src="https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.21442160-blue" alt="DOI">
 </p>
 
-国产大模�?AI 助手，支�?**DeepSeek / 通义千问 / 智谱 GLM / Ollama**。具�?Agentic 工具调用、多模态文件识别、ONNX 本地嵌入、Vault 语义检索、知识图谱生成等能力�?
+# Multi-LLM AI Assistant — Obsidian Plugin
+
+> **An AI-augmented knowledge management system built from first principles.**
+> Designed end-to-end by a single author: multi-provider LLM routing, agentic tool-calling, CJK-optimized semantic search, and autonomous knowledge graph generation — all grounded in systematic benchmark evaluation.
+
 <p align="center">
-  <a href="https://qi-hub-dot.github.io/obsidian-multi-llm-ai-agent/">🌐 Demo 站点</a> ·
-  <a href="https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent/releases">📦 下载 Release</a>
+  <a href="https://qi-hub-dot.github.io/obsidian-multi-llm-ai-agent/">Demo</a> ·
+  <a href="https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent/releases">Releases</a> ·
+  <a href="#-benchmark-results">Benchmarks</a> ·
+  <a href="https://doi.org/10.5281/zenodo.21442160">Paper (DOI)</a>
 </p>
 
 ---
 
-## 📸 截图
+## Why This Project Exists
 
-| 知识图谱 + AI 对话 | 模型配置 |
+Existing Obsidian AI plugins rely on OpenAI's API and assume English-language content. For Chinese-speaking knowledge workers, this creates three hard barriers: **network inaccessibility**, **privacy risks from uploading notes to foreign servers**, and **broken full-text search** — standard word-boundary tokenizers fail on CJK text that has no whitespace.
+
+This plugin was designed from scratch to solve all three problems simultaneously. It provides a **unified adapter** across four LLM families (DeepSeek, Qwen, GLM-4, Ollama), a **custom CJK n-gram tokenizer** that outperforms baseline approaches by 3.3×, and an **autonomous agent loop** that lets the AI orchestrate vault operations rather than merely chat.
+
+Every architectural decision was made independently — from the `<tool_call>` XML protocol (chosen over OpenAI Function Calling for cross-provider reliability) to the five-layer Canvas JSON error recovery strategy (designed after observing real-world LLM output failures). This is not a wrapper around an existing API; it is a system designed to solve an observed problem space.
+
+---
+
+## Key Design Decisions
+
+| Decision | Why It Matters |
+|---|---|
+| Custom `<tool_call>` XML protocol over Function Calling | GLM-4 Function Calling is production-unstable; regex parsing is provider-agnostic and debuggable |
+| CJK n-gram tokenizer with 3× title boost | Eliminates jieba dependency; achieves 83.3% P@5 vs. 25.5% for whitespace-based search |
+| Five-layer Canvas JSON recovery | Real LLM outputs contain 5 distinct error classes; each requires a different recovery strategy |
+| Client-side PII sanitization before API transmission | Privacy-by-design: phone, ID, email, and IP patterns stripped locally |
+| Three-tier search degradation (API → ONNX → TF-IDF) | Graceful fallback when embedding services are unavailable or offline |
+| LRU memory eviction at 80% threshold with hysteresis | Prevents unbounded context growth without thrashing |
+| Zettelkasten + PARA + MOC encoded in system prompt | AI organizes notes according to established knowledge management methodology |
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    User Interface (React)                   │
+│              Chat · Canvas Preview · Quick Ask              │
+├─────────────────────────────────────────────────────────────┤
+│                   Agentic Loop (≤20 rounds)                 │
+│   ┌─────────┐   ┌──────────┐   ┌────────┐   ┌──────────┐  │
+│   │  Parse  │──▶│ Execute  │──▶│Inject  │──▶│ Generate │  │
+│   │Tool Call│   │  Tool    │   │Result  │   │ Response │  │
+│   └─────────┘   └──────────┘   └────────┘   └──────────┘  │
+│        │              │                                    │
+│        ▼              ▼                                    │
+│  ┌──────────┐   ┌──────────────────────────┐              │
+│  │  Regex + │   │     Tool Registry (9)     │              │
+│  │GLM4 Fbck│   │ searchVault · readNote    │              │
+│  └──────────┘   │ createNote · saveCanvas   │              │
+│                 └──────────────────────────┘              │
+├─────────────────────────────────────────────────────────────┤
+│              Unified LLM Router (Adapter Pattern)          │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│   │ DeepSeek │  │  Qwen    │  │  GLM-4   │  │  Ollama  │  │
+│   │V4 Flash  │  │ qwen-max │  │glm-4-flash│  │ qwen2.5  │  │
+│   └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│         Semantic Search (3-Tier Degradation)               │
+│   API Embedding → ONNX Local (384d) → TF-IDF (CJK n-gram) │
+├─────────────────────────────────────────────────────────────┤
+│         Privacy Layer (Client-Side Only)                   │
+│   PII Sanitizer · LRU Memory Cache · ONNX (Offline)       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📊 Benchmark Results
+
+Systematic evaluation against baselines (85/86 cases passed, 98.8%):
+
+| Module | Cases | Passed | Pass Rate |
+|---|---|---|---|
+| Tokenizer Precision (CJK n-gram vs. whitespace) | 15 | 15 | 100% |
+| Canvas JSON Robustness (adversarial inputs) | 10 | 10 | 100% |
+| Tool Call Parser (standard + GLM-4 malformed) | 12 | 12 | 100% |
+| Search Precision (49 queries, 30 notes) | 49 | 48 | 98.0% |
+
+**Search Precision@5 and Recall@5:**
+
+| Method | P@5 | R@5 |
+|---|---|---|
+| **CJK n-gram TF-IDF (ours)** | **83.3%** | **89.5%** |
+| Substring match (Obsidian native) | 25.5% | 29.6% |
+| Dictionary match (jieba-like) | 72.1% | 78.2% |
+
+> Run: `npx tsx benchmark/runner.ts`
+
+---
+
+## 📸 Screenshots
+
+| Knowledge Graph + AI Chat | Model Configuration |
 |:---:|:---:|
-| ![知识图谱](screenshots/canvas.png) | ![DeepSeek](screenshots/settings-deepseek.png) |
+| ![Canvas](screenshots/canvas.png) | ![Settings](screenshots/settings-deepseek.png) |
 
-| 本地模型 + 多模�?| 隐私脱敏 |
+| Ollama Local Model | Privacy Controls |
 |:---:|:---:|
-| ![Ollama](screenshots/settings-ollama.png) | ![隐私](screenshots/settings-privacy.png) |
+| ![Ollama](screenshots/settings-ollama.png) | ![Privacy](screenshots/settings-privacy.png) |
 
 ---
 
-## 🚀 快速开�?
-1. �?Obsidian 设置中配置任一大模�?API Key（DeepSeek / 通义千问 / 智谱 GLM�?2. 打开 AI 助手侧边�?�?开始对�?3. 试试说�?*做笔�?*」�?*画脑�?*」�?*搜索相关知识**�?
----
+## 🚀 Quick Start
 
-## �?功能
-
-### 🤖 多模型支�?| 模型 | 特点 |
-|------|------|
-| 🔴 DeepSeek V4 Flash / Pro | 默认，快�?+ 深度推理 |
-| 🟠 通义千问 (Qwen) | 阿里云，OpenAI 兼容 |
-| 🔵 智谱 GLM-4 | 清华，OpenAI 兼容 |
-| 🦙 Ollama 本地 | 支持 qwen2.5 等本地模�?|
-
-### 🛠�?9 个内�?AI 工具
-AI �?*自主调用工具**完成知识管理操作�?
-| 工具 | 功能 | 触发场景 |
-|------|------|----------|
-| `searchVault` | 全文搜索笔记 | "有没有关于X的笔�? |
-| `readNote` | 读取笔记全文 | "打开X看看" |
-| `createNote` | 创建新笔记（自动分类�?| "做笔�?/ 创建一篇笔�? |
-| `modifyNote` | 覆盖笔记内容 | "修改 / 重写X笔记" |
-| `appendNote` | 追加到笔记末�?| "补充 / 追加到X" |
-| `listNotes` | 列出所有笔�?| "有哪些笔�? |
-| `getFileTree` | 浏览目录结构 | "看看文件�? |
-| `getTags` | 查看标签体系 | "有哪些标�? |
-| `saveCanvas` | 生成知识图谱 | "画脑�?/ 思维导图" |
-
-> Agentic Loop：用户提�?�?AI 自主判断 �?调用工具 �?基于结果回答。最�?20 轮推理�?
-### 📷 多模态文件识�?统一「附件」按钮，自动路由�?
-| 文件类型 | 处理方式 |
-|----------|---------|
-| 图片 (png/jpg/gif/webp) | 视觉模型 OCR �?注入上下�?|
-| PDF (含扫描件) | 渲染 �?视觉模型提取文字 |
-| Word (docx) | mammoth 解析 |
-| Markdown/TXT | 直接注入上下�?|
-
-### 🔍 语义检�?(RAG)
-- **TF-IDF 全文索引** + **ONNX 本地嵌入**�?84 维向量）三级回退：API �?ONNX �?TF-IDF
-- 每次对话自动注入 Top-5 相关笔记
-- 🟢高相�?/ 🟡低相关标注，AI 自行取舍
-
-### 💬 对话体验
-- 流式输出 + 思考面板（V4 Pro 推理过程可折叠）
-- 消息操作：复�?/ 重新生成 / 编辑 / 删除（悬停显示）
-- 模型一键切换，Token 估算
-
-### 📝 智能笔记
-- 「做笔记」→ 自动搜索 Vault �?关联 `[[已有笔记]]` �?创建文件
-- 自动分类目录（`编程/Python.md`、`学习/线性代�?md`�?- Frontmatter（tags/date�? 双向链接 + Zettelkasten 原子�?
-### 🧠 知识图谱
-- 生成 Canvas 格式脑图，自动节点布局 + 颜色编码
-- 进度卡片实时显示生成状�?
-### �?快捷操作
-- 编辑器选中文本 �?内联润色 / 解释 / 翻译
-- 6 组快捷提示，一键发�?- 自定�?System Prompt
-- 导出对话�?Markdown
-
-### 🔒 隐私
-- 本地 PII 脱敏（手机号 / 身份证号 / 邮箱 / IP�?- 记忆缓存 LRU 自动清理
-- ONNX 本地嵌入完全离线运行
+1. Install from Obsidian Community Plugins (search "Multi-LLM Assistant"), or download the [latest release](https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent/releases)
+2. Configure one LLM provider (DeepSeek / Qwen / GLM-4 / Ollama)
+3. Open the AI sidebar and start chatting
+4. Try: "Create a note about X", "Search my vault for Y", "Draw a mind map about Z"
 
 ---
 
-## 📦 安装
+## 📁 Repository Structure
+
+```
+├── src/
+│   ├── LLMProviders/    # Multi-provider adapter (DeepSeek/Qwen/GLM/Ollama)
+│   ├── tools/           # Agentic tool registry + built-in tools
+│   ├── rag/             # TF-IDF index, ONNX embeddings, hybrid search
+│   ├── parsers/         # Multimodal file parsers (PDF/Word/Markdown)
+│   ├── ui/              # React chat interface (TSX)
+│   └── prompts.ts       # System prompt with Zettelkasten/PARA/MOC
+├── benchmark/           # Systematic benchmark suite (4 modules, 86 cases)
+├── paper/
+│   └── paper.tex        # JOSS-format academic paper
+├── docs/
+│   ├── ARCHITECTURE.md  # Detailed architecture documentation
+│   └── TECHNICAL_REPORT.md
+├── main.ts              # Plugin entry point
+└── manifest.json        # Obsidian plugin manifest
+```
+
+---
+
+## 📄 Paper & Publication
+
+A formal academic paper describing the system design, benchmark methodology, and results is available in `paper/paper.tex` (JOSS format). The software is archived at Zenodo:
+
+> Cai, Y. (2026). *Multi-LLM AI Assistant: Obsidian Plugin v2.0.7* [Software]. Zenodo. [https://doi.org/10.5281/zenodo.21442160](https://doi.org/10.5281/zenodo.21442160)
+
+---
+
+## 🛠 Development
 
 ```bash
-# 方式一：下�?Release
-# 1. 下载 main.js / styles.css / manifest.json
-# 2. 放入 .obsidian/plugins/multi-llm-ai-agent/
-# 3. 重启 Obsidian �?设置 �?启用「AI 助手�?
-# 方式二：从源码构�?git clone https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent.git
+git clone https://github.com/Qi-hub-dot/obsidian-multi-llm-ai-agent.git
+cd obsidian-multi-llm-ai-agent
+npm install
+npm run dev      # Watch mode
+npm run build    # Production build → main.js
+npx tsx benchmark/runner.ts  # Run benchmarks
+```
+
+---
+
+## 📝 License
+
+MIT © Yiqi Cai
+
+---
+
+## 🙏 Acknowledgements
+
+The architecture design drew inspiration from [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot) (Logan Yang, AGPL-3.0). All code is independently written; this project is not a fork.
 cd obsidian-ai-assistant
 npm install && npm run build
 # �?main.js / styles.css / manifest.json 复制到插件目�?```
